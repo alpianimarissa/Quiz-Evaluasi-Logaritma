@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interaktif 20 Soal Logaritma SMA</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- KaTeX CSS & JS for Math Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .katex {
+            font-size: 1.05em;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen pb-20">
+
+    <!-- Header & Score Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-sky-500 text-white flex items-center justify-center font-black text-xl shadow-md shadow-indigo-500/20">
+                    $\log$
+                </div>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-base md:text-lg leading-tight">Quiz Interaktif: 20 Soal Logaritma</h1>
+                    <p class="text-xs text-slate-500 hidden sm:block">Level Menengah (Medium) • Sifat & Persamaan Logaritma</p>
+                </div>
+            </div>
+            
+            <!-- Progress & Score Badge -->
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-100 border border-slate-200 px-4 py-1.5 rounded-full flex items-center gap-2">
+                    <i class="fa-solid fa-star text-amber-500 text-sm"></i>
+                    <span class="text-xs font-bold text-slate-700">Skor: <span id="user-score" class="text-indigo-600 text-sm font-extrabold">0</span> / 100</span>
+                </div>
+                <button onclick="resetQuizData()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5" title="Reset Semua Jawaban">
+                    <i class="fa-solid fa-rotate-right"></i> Reset
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl mx-auto px-4 mt-8 space-y-8">
+
+        <!-- Info Card -->
+        <section class="bg-gradient-to-br from-indigo-600 via-indigo-700 to-sky-600 rounded-3xl p-6 md:p-8 text-white shadow-xl shadow-indigo-500/10 relative overflow-hidden">
+            <div class="absolute -right-8 -bottom-8 opacity-10 text-[12rem] font-black select-none pointer-events-none text-white">
+                $\log$
+            </div>
+            <div class="relative z-10 max-w-2xl">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 border border-white/30 text-white text-xs font-semibold rounded-full mb-3 backdrop-blur-md">
+                    <i class="fa-solid fa-graduation-cap"></i> Evaluasi Mandiri Terpadu
+                </span>
+                <h2 class="text-xl md:text-3xl font-extrabold tracking-tight mb-2">
+                    Uji Kemampuan Logaritma Anda
+                </h2>
+                <p class="text-indigo-100 text-xs md:text-sm leading-relaxed">
+                    Kerjakan 20 soal latihan berikut. Setiap soal langsung menampilkan umpan balik (benar/salah) dan pembahasan lengkap saat dijawab. Jawaban Anda tersimpan otomatis di perangkat, sehingga aman meskipun halaman tidak sengaja terreload atau koneksi terputus.
+                </p>
+            </div>
+        </section>
+
+        <!-- Question Navigation Grid -->
+        <section class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <h3 class="font-bold text-slate-900 text-sm">Navigasi Nomor Soal</h3>
+                <div class="flex items-center gap-3 text-[11px] font-semibold text-slate-600">
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-slate-200 inline-block"></span> Belum</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Benar</span>
+                    <span class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> Salah</span>
+                </div>
+            </div>
+            <div id="nav-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2">
+                <!-- Generated dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- Active Question Card -->
+        <section class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6" id="quiz-card-container">
+            <div class="flex justify-between items-center flex-wrap gap-2 border-b border-slate-100 pb-4">
+                <span id="q-badge" class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">Soal 1 dari 20</span>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">+5 Poin</span>
+            </div>
+
+            <!-- Question Text -->
+            <div id="q-text" class="text-base md:text-lg font-bold text-slate-900 leading-relaxed min-h-[50px]">
+                <!-- Question loaded here -->
+            </div>
+
+            <!-- Options Container -->
+            <div id="options-container" class="space-y-3">
+                <!-- Options loaded here -->
+            </div>
+
+            <!-- Rationale / Feedback Box -->
+            <div id="feedback-box" class="hidden p-4 rounded-2xl border text-xs leading-relaxed space-y-1">
+                <!-- Feedback loaded here -->
+            </div>
+
+            <!-- Prev / Next Controls -->
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                <button onclick="prevQuestion()" id="btn-prev" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-arrow-left"> Sebelumnya</i>
+                </button>
+                <button onclick="nextQuestion()" id="btn-next" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm">
+                    <span>Berikutnya</span> <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Completion Summary Banner -->
+        <section id="summary-banner" class="hidden bg-emerald-50 border border-emerald-300 rounded-3xl p-6 md:p-8 text-emerald-900 space-y-4 shadow-md text-center">
+            <div class="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center text-2xl mx-auto shadow-lg shadow-emerald-500/30">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h3 class="text-2xl font-extrabold">Selamat, Anda Telah Menyelesaikan 20 Soal!</h3>
+            <p class="text-sm text-emerald-700 max-w-md mx-auto">
+                Skor akhir Anda adalah <span id="final-score" class="font-extrabold text-emerald-900">0</span> dari 100 Poin. Terus tingkatkan pemahaman Anda mengenai sifat dan persamaan logaritma!
+            </p>
+            <button onclick="resetQuizData()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-6 py-3 rounded-xl transition shadow-sm">
+                Mulai Ulang Quiz
+            </button>
+        </section>
+
+    </main>
+
+    <script>
+        // Dataset 20 Soal Logaritma (Medium Level)
+        const quizData = [
+            {
+                id: 1,
+                question: "Nilai dari bentuk sederhana $${}^2\\log 32$$ adalah ...",
+                options: ["3", "4", "5", "6"],
+                correct: 2,
+                rationale: "Karena $32 = 2^5$, maka ${}^2\\log(2^5) = 5 \\cdot {}^2\\log 2 = 5 \\cdot 1 = 5$."
+            },
+            {
+                id: 2,
+                question: "Hasil dari penjumlahan ${}^3\\log 9 + {}^3\\log 27$ adalah ...",
+                options: ["3", "4", "5", "6"],
+                correct: 2,
+                rationale: "Gunakan sifat penjumlahan: ${}^3\\log(9 \\cdot 27) = {}^3\\log 243 = {}^3\\log(3^5) = 5$."
+            },
+            {
+                id: 3,
+                question: "Nilai dari ${}^5\\log 100 - {}^5\\log 4$ adalah ...",
+                options: ["2", "3", "4", "25"],
+                correct: 0,
+                rationale: "Gunakan sifat pengurangan: ${}^5\\log\\left(\\frac{100}{4}\\right) = {}^5\\log 25 = {}^5\\log(5^2) = 2$."
+            },
+            {
+                id: 4,
+                question: "Bentuk sederhana dari ${}^{2^2}\\log(2^6)$ adalah ...",
+                options: ["1.5", "2", "3", "4"],
+                correct: 2,
+                rationale: "Berdasarkan sifat pangkat basis & numerus ${}^{a^m}\\log(b^n) = \\frac{n}{m} \\cdot {}^a\\log b$, didapat $\\frac{6}{2} = 3$."
+            },
+            {
+                id: 5,
+                question: "Nilai dari perkalian berantai ${}^3\\log 5 \\cdot {}^5\\log 81$ adalah ...",
+                options: ["2", "3", "4", "5"],
+                correct: 2,
+                rationale: "Menggunakan sifat rantai ${}^a\\log b \\cdot {}^b\\log c = {}^a\\log c$, maka ${}^3\\log 81 = {}^3\\log(3^4) = 4$."
+            },
+            {
+                id: 6,
+                question: "Hasil dari ${}^4\\log 64 + {}^{\\sqrt{2}}\\log 8$ adalah ...",
+                options: ["7", "8", "9", "10"],
+                correct: 2,
+                rationale: "${}^4\\log(4^3) = 3$ dan ${}^{2^{1/2}}\\log(2^3) = \\frac{3}{1/2} = 6$. Jumlahnya $3 + 6 = 9$."
+            },
+            {
+                id: 7,
+                question: "Jika ${}^2\\log 3 = m$, maka bentuk ${}^2\\log 24$ dalam $m$ adalah ...",
+                options: ["$3m$", "$3 + m$", "$m^3$", "$3 - m$"],
+                correct: 1,
+                rationale: "${}^2\\log(8 \\cdot 3) = {}^2\\log 8 + {}^2\\log 3 = 3 + m$."
+            },
+            {
+                id: 8,
+                question: "Jika ${}^3\\log 5 = a$, nilai dari ${}^3\\log 75$ adalah ...",
+                options: ["$a^2$", "$1 + 2a$", "$2 + a$", "$2a + 1$"],
+                correct: 3,
+                rationale: "${}^3\\log(25 \\cdot 3) = {}^3\\log(5^2) + {}^3\\log 3 = 2({}^3\\log 5) + 1 = 2a + 1$."
+            },
+            {
+                id: 9,
+                question: "Nilai dari ekspresi $2^{{}^2\\log 8} + 3^{{}^3\\log 9}$ adalah ...",
+                options: ["15", "17", "19", "21"],
+                correct: 1,
+                rationale: "Sifat $a^{{}^a\\log b} = b$, maka $2^{{}^2\\log 8} = 8$ dan $3^{{}^3\\log 9} = 9$. Hasilnya $8 + 9 = 17$."
+            },
+            {
+                id: 10,
+                question: "Nilai $x$ yang memenuhi persamaan ${}^3\\log(2x - 5) = {}^3\\log 9$ adalah ...",
+                options: ["$x = 5$", "$x = 7$", "$x = 9$", "$x = 14$"],
+                correct: 1,
+                rationale: "Samakan numerus: $2x - 5 = 9 \\implies 2x = 14 \\implies x = 7$. (Memenuhi syarat numerus $2(7)-5 = 9 > 0$)."
+            },
+            {
+                id: 11,
+                question: "Himpunan penyelesaian dari ${}^2\\log(x^2 - 3) = 2$ adalah ...",
+                options: ["$x = \\pm \\sqrt{7}$", "$x = \\pm 3$", "$x = 3$", "$x = 7$"],
+                correct: 0,
+                rationale: "$x^2 - 3 = 2^2 = 4 \\implies x^2 = 7 \\implies x = \\pm \\sqrt{7}$."
+            },
+            {
+                id: 12,
+                question: "Jika ${}^4\\log(x + 1) = \\frac{1}{2}$, maka nilai $x$ adalah ...",
+                options: ["$x = 1$", "$x = 2$", "$x = 3$", "$x = 4$"],
+                correct: 0,
+                rationale: "$x + 1 = 4^{1/2} = \\sqrt{4} = 2 \\implies x = 1$."
+            },
+            {
+                id: 13,
+                question: "Sentukan nilai $x$ dari ${}^5\\log(3x - 2) = {}^7\\log(3x - 2)$",
+                options: ["$x = 1$", "$x = 2$", "$x = 3$", "$x = 5$"],
+                correct: 0,
+                rationale: "Karena basis berbeda ($5 \\neq 7$), maka numerus harus bernilai 1: $3x - 2 = 1 \\implies 3x = 3 \\implies x = 1$."
+            },
+            {
+                id: 14,
+                question: "Penyelesaian dari ${}^2\\log(x - 1) + {}^2\\log(x + 1) = 3$ adalah ...",
+                options: ["$x = 3$", "$x = -3$", "$x = \\pm 3$", "$x = 5$"],
+                correct: 0,
+                rationale: "${}^2\\log((x-1)(x+1)) = 3 \\implies x^2 - 1 = 2^3 = 8 \\implies x^2 = 9 \\implies x = \\pm 3$. Uji syarat numerus $x-1>0 \\implies x>1$, maka hanya $x = 3$ yang memenuhi."
+            },
+            {
+                id: 15,
+                question: "Jika $x_1$ dan $x_2$ adalah akar-akar dari $({}^3\\log x)^2 - 2({}^3\\log x) - 3 = 0$, nilai hasil kali $x_1 \\cdot x_2$ adalah ...",
+                options: ["9", "27", "81", "243"],
+                correct: 0,
+                rationale: "Jumlah akar logaritma ${}^3\\log x_1 + {}^3\\log x_2 = -(-2)/1 = 2 \\implies {}^3\\log(x_1 x_2) = 2 \\implies x_1 x_2 = 3^2 = 9$."
+            },
+            {
+                id: 16,
+                question: "Jika ${}^2\\log 3 = a$ dan ${}^3\\log 5 = b$, nilai dari ${}^2\\log 15$ adalah ...",
+                options: ["$a + b$", "$a(1 + b)$", "$ab$", "$1 + ab$"],
+                correct: 1,
+                rationale: "${}^2\\log 15 = {}^2\\log(3 \\cdot 5) = {}^2\\log 3 + {}^2\\log 5 = a + (a \\cdot b) = a(1 + b)$."
+            },
+            {
+                id: 17,
+                question: "Nilai $x$ yang memenuhi persamaan ${}^x\\log 8 = 3$ adalah ...",
+                options: ["2", "3", "4", "8"],
+                correct: 0,
+                rationale: "$x^3 = 8 \\implies x = \\sqrt[3]{8} = 2$."
+            },
+            {
+                id: 18,
+                question: "Himpunan penyelesaian dari ${}^3\\log x + {}^3\\log(x - 2) = 1$ adalah ...",
+                options: ["$x = 1$", "$x = 3$", "$x = -1$ dan $x = 3$", "$x = 1$ dan $x = 3$"],
+                correct: 1,
+                rationale: "${}^3\\log(x(x-2)) = 1 \\implies x^2 - 2x = 3 \\implies x^2 - 2x - 3 = 0 \\implies (x-3)(x+1)=0$. Karena syarat $x>2$, maka $x = 3$."
+            },
+            {
+                id: 19,
+                question: "Jika ${}^2\\log(x^2 - 2x) = 3$, manakah nilai $x$ yang memenuhi?",
+                options: ["$x = -2$ atau $x = 4$", "$x = -4$ atau $x = 2$", "$x = 2$ atau $x = 4$", "$x = -2$ atau $x = -4$"],
+                correct: 0,
+                rationale: "$x^2 - 2x = 2^3 = 8 \\implies x^2 - 2x - 8 = 0 \\implies (x-4)(x+2)=0 \\implies x=4$ atau $x=-2$. Keduanya memenuhi syarat numerus."
+            },
+            {
+                id: 20,
+                question: "Himpunan penyelesaian persamaan $({}^5\\log x)^2 - 5({}^5\\log x) + 6 = 0$ adalah ...",
+                options: ["\\{2, 3\\}", "\\{5, 25\\}", "\\{25, 125\\}", "\\{5, 125\\}"],
+                correct: 2,
+                rationale: "Misal $y = {}^5\\log x \\implies y^2 - 5y + 6 = 0 \\implies (y-2)(y-3)=0 \\implies y=2$ atau $y=3$. Maka $x = 5^2 = 25$ atau $x = 5^3 = 125$."
+            }
+        ];
+
+        // State Management
+        let currentIndex = 0;
+        let userAnswers = JSON.parse(localStorage.getItem('log_quiz_answers')) || {}; // index -> optionIndex
+        let questionStatus = JSON.parse(localStorage.getItem('log_quiz_status')) || {}; // index -> 'correct' | 'incorrect'
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderNavGrid();
+            loadQuestion(currentIndex);
+            updateScoreDisplay();
+            checkCompletion();
+        });
+
+        // KaTeX render helper
+        function renderMath(element = document.body) {
+            if (window.renderMathInElement) {
+                try {
+                    renderMathInElement(element, {
+                        delimiters: [
+                            {left: "$$", right: "$$", display: true},
+                            {left: "$", right: "$", display: false}
+                        ],
+                        throwOnError: false
+                    });
+                } catch (e) {
+                    console.error("KaTeX Error: ", e);
+                }
+            }
+        }
+
+        // Render Nav Grid
+        function renderNavGrid() {
+            const grid = document.getElementById('nav-grid');
+            grid.innerHTML = '';
+            quizData.forEach((q, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `h-10 rounded-xl font-bold text-xs transition border flex items-center justify-center `;
+                
+                const status = questionStatus[idx];
+                if (status === 'correct') {
+                    btn.className += `bg-emerald-500 text-white border-emerald-600 shadow-sm`;
+                } else if (status === 'incorrect') {
+                    btn.className += `bg-rose-500 text-white border-rose-600 shadow-sm`;
+                } else {
+                    btn.className += `bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200`;
+                }
+
+                if (idx === currentIndex) {
+                    btn.className += ` ring-2 ring-indigo-600 ring-offset-2`;
+                }
+
+                btn.innerText = idx + 1;
+                btn.onclick = () => goToQuestion(idx);
+                grid.appendChild(btn);
+            });
+        }
+
+        // Load Question
+        function loadQuestion(idx) {
+            currentIndex = idx;
+            const q = quizData[idx];
+
+            document.getElementById('q-badge').innerText = `Soal ${idx + 1} dari 20`;
+            document.getElementById('q-text').innerHTML = q.question;
+
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+
+            const answeredOpt = userAnswers[idx];
+            const isAnswered = answeredOpt !== undefined;
+
+            q.options.forEach((opt, optIdx) => {
+                const label = document.createElement('label');
+                label.className = `flex items-center gap-3 p-4 rounded-2xl border transition cursor-pointer text-xs md:text-sm font-medium `;
+                
+                let inputAttrs = `type="radio" name="q-opt" value="${optIdx}" class="accent-indigo-600 w-4 h-4"`;
+                if (isAnswered) {
+                    inputAttrs += ` disabled`;
+                }
+                if (answeredOpt === optIdx) {
+                    inputAttrs += ` checked`;
+                }
+
+                if (isAnswered) {
+                    if (optIdx === q.correct) {
+                        label.className += `bg-emerald-50 border-emerald-300 text-emerald-900 font-bold`;
+                    } else if (answeredOpt === optIdx) {
+                        label.className += `bg-rose-50 border-rose-300 text-rose-900`;
+                    } else {
+                        label.className += `bg-slate-50 border-slate-200 text-slate-500 opacity-60`;
+                    }
+                } else {
+                    label.className += `bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-800`;
+                }
+
+                label.innerHTML = `
+                    <input ${inputAttrs} onchange="selectAnswer(${idx}, ${optIdx})">
+                    <span>${String.fromCharCode(65 + optIdx)}. ${opt}</span>
+                `;
+                optContainer.appendChild(label);
+            });
+
+            // Feedback Box
+            const fbBox = document.getElementById('feedback-box');
+            if (isAnswered) {
+                fbBox.classList.remove('hidden');
+                const isCorrect = answeredOpt === q.correct;
+                if (isCorrect) {
+                    fbBox.className = `p-4 rounded-2xl border text-xs leading-relaxed space-y-1 bg-emerald-50 border-emerald-200 text-emerald-900`;
+                    fbBox.innerHTML = `<strong>✨ Benar!</strong><p>${q.rationale}</p>`;
+                } else {
+                    fbBox.className = `p-4 rounded-2xl border text-xs leading-relaxed space-y-1 bg-rose-50 border-rose-200 text-rose-900`;
+                    fbBox.innerHTML = `<strong>❌ Kurang Tepat.</strong><p>${q.rationale}</p>`;
+                }
+            } else {
+                fbBox.classList.add('hidden');
+                fbBox.innerHTML = '';
+            }
+
+            // Buttons state
+            document.getElementById('btn-prev').disabled = idx === 0;
+            document.getElementById('btn-next').disabled = idx === quizData.length - 1;
+
+            renderNavGrid();
+            renderMath(document.getElementById('quiz-card-container'));
+        }
+
+        // Select Answer & Instant Feedback
+        function selectAnswer(qIdx, optIdx) {
+            if (userAnswers[qIdx] !== undefined) return; // already answered
+
+            userAnswers[qIdx] = optIdx;
+            const q = quizData[qIdx];
+            const isCorrect = optIdx === q.correct;
+
+            questionStatus[qIdx] = isCorrect ? 'correct' : 'incorrect';
+
+            // Save to localStorage
+            localStorage.setItem('log_quiz_answers', JSON.stringify(userAnswers));
+            localStorage.setItem('log_quiz_status', JSON.stringify(questionStatus));
+
+            updateScoreDisplay();
+            loadQuestion(qIdx);
+            checkCompletion();
+        }
+
+        // Navigation
+        function goToQuestion(idx) {
+            if (idx >= 0 && idx < quizData.length) {
+                loadQuestion(idx);
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) {
+                loadQuestion(currentIndex - 1);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentIndex < quizData.length - 1) {
+                loadQuestion(currentIndex + 1);
+            }
+        }
+
+        // Score & Completion Calculation
+        function updateScoreDisplay() {
+            let correctCount = 0;
+            Object.keys(questionStatus).forEach(key => {
+                if (questionStatus[key] === 'correct') correctCount++;
+            });
+            const totalScore = correctCount * 5; // 20 questions * 5 = 100 points
+            document.getElementById('user-score').innerText = totalScore;
+            document.getElementById('final-score').innerText = totalScore;
+        }
+
+        function checkCompletion() {
+            const answeredCount = Object.keys(userAnswers).length;
+            const summaryBanner = document.getElementById('summary-banner');
+            if (answeredCount === quizData.length) {
+                summaryBanner.classList.remove('hidden');
+            } else {
+                summaryBanner.classList.add('hidden');
+            }
+        }
+
+        // Reset Quiz
+        function resetQuizData() {
+            if (confirm("Apakah Anda yakin ingin mereset seluruh jawaban dan mulai dari awal?")) {
+                localStorage.removeItem('log_quiz_answers');
+                localStorage.removeItem('log_quiz_status');
+                userAnswers = {};
+                questionStatus = {};
+                currentIndex = 0;
+                document.getElementById('summary-banner').classList.add('hidden');
+                renderNavGrid();
+                loadQuestion(0);
+                updateScoreDisplay();
+            }
+        }
+    </script>
+</body>
+</html>
